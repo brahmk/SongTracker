@@ -1,0 +1,294 @@
+﻿@model SongTracker.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+    ViewBag.UserId = Model.ActiveUserId;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+
+            <h2 class="text-center">@Model.ProfileName's Profile</h2>
+
+            <!-- my songs-->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3>My Liked Songs</h3>
+                    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addSongModal">
+                        Add Song
+                    </button>
+
+                    @if (Model.Songs != null && Model.Songs.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var song in Model.Songs)
+                            {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <b> @song.Title</b> by @song.Artist
+                                   
+                                </div>
+                                <div>
+                                    @if (!string.IsNullOrEmpty(song.LinkUrl))
+                                    {
+                                        <a href="@song.LinkUrl" target="_blank">
+                                            <img src="@song.LinkIcon" alt="@song.LinkIcon" style="width: 24px; height: 24px;" />
+                                        </a>
+                                    }
+                                    <button type="button" class="btn btn-link" onclick="toggleLike('@song.SongId')">
+                                            <i class="fas fa-heart text-danger"></i>
+                                        </button>                                  
+                                </div>
+                            </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No songs! Use the form to add one above, or check out your friends' lists.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- friends -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3>Friends</h3>
+                    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addFriendModal">
+                        Add Friend
+                    </button>
+
+                    @if (Model.Friends != null && Model.Friends.Any())
+                    {
+                        <div class="row">
+                            @foreach (var friend in Model.Friends)
+                            {
+                                <div class="col-md-12 mb-3">
+                                    <div class="card flex-row shadow-sm">
+                                        <div class="card-body  justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="card-title">@friend.UserName's Liked Songs</h5>
+
+                                                @if (friend.LikedSongs != null && friend.LikedSongs.Any())
+                                                {
+                                                    <ul class="list-group list-group-flush">
+                                                        @foreach (var song in friend.LikedSongs)
+                                                        {
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                <b> @song.Title</b> by @song.Artist
+                                                                   
+                                                                </div>
+                                                                <div>
+                                                                @if (!string.IsNullOrEmpty(song.LinkUrl))
+                                                                {
+                                                                    <a href="@song.LinkUrl" target="_blank">
+                                                                        <img src="@song.LinkIcon" alt="@song.LinkIcon" style="width: 24px; height: 24px;" />
+                                                                    </a>
+                                                                }
+                                                                @{
+                                                                    var heartIconClass = Model.Songs.Contains(song) ? "fas fa-heart text-danger" : "far fa-heart";
+                                                                }
+
+                                                                <button type="button" class="btn btn-link" onclick="toggleLike('@song.SongId')">
+                                                                    <i class="@heartIconClass"></i>
+                                                                </button>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">No liked songs.</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>You have no friends :(</p>
+                    }
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+
+
+
+<!-- friend modal-->
+<div class="modal fade" id="addFriendModal" tabindex="-1" role="dialog" aria-labelledby="addFriendModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFriendModalLabel">Add a Friend</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addFriendForm">
+          <div class="form-group">
+            <label for="friendUsername">Friend's Username</label>
+            <input type="text" class="form-control" id="friendUsername" placeholder="Enter username" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Friend</button>
+        </form>
+        <div id="friendMessage"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- song modal-->
+<div class="modal fade" id="addSongModal" tabindex="-1" role="dialog" aria-labelledby="addSongModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFriendModalLabel">Add a Song</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       
+    <form id="addSongForm">
+            <input type="hidden" id="activeUserId" value="@Model.ActiveUserId" />
+
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Enter song title" required />
+        </div>
+
+        <div class="form-group">
+            <label for="artist">Artist:</label>
+            <input type="text" id="artist" name="artist" class="form-control" placeholder="Enter artist name" required />
+        </div>
+
+        <div class="form-group">
+            <label for="linkUrl">Link URL:</label>
+            <input type="url" id="linkUrl" name="linkUrl" class="form-control" placeholder="Enter song link URL" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Song</button>
+    </form>
+        <div id="songMessage"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    var activeUserId = $('#activeUserId').val();
+
+    $(document).ready(function () {
+        //add song
+        $('#addSongForm').submit(function (event) {
+            event.preventDefault();
+
+            var songData = {
+                Title: $('#title').val(),
+                Artist: $('#artist').val(),
+                LinkUrl: $('#linkUrl').val(),
+                AddedByUserId: activeUserId
+            };
+
+            $.ajax({
+                url: '/api/Song/AddSong',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(songData),
+                success: function (response) {
+                    $('#songMessage').html('<div class="alert alert-success">' + response.message + '</div>');
+                    handleAddSongSuccess();
+                },
+                error: function (xhr, status, error) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        alert(xhr.responseJSON.message);
+                    } else {
+                        alert("An error occurred. Please try again.");
+                    }
+                }
+            });
+        });
+
+        // Add friend
+
+        $('#addFriendForm').submit(function (event) {
+            event.preventDefault();
+
+            var addFriendData = {
+                UserNameToAdd: $('#friendUsername').val(),
+                ActiveUserId: activeUserId
+            };
+
+            $.ajax({
+                url: '/api/User/AddFriend',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(addFriendData),
+                success: function (response) {
+                    handleAddFriendSuccess();
+                    $('#friendMessage').html('<div class="alert alert-success">' + response.message + '</div>');
+                    $('#addFriendModal').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        alert(xhr.responseJSON.message);
+                    } else {
+                        alert("An error occurred. Please try again.");
+                    }
+                }
+            });
+        });
+    });
+
+    // Function to toggle like/unlike
+    function toggleLike(songId) {
+        var toggleLikeData = {
+            SongId: songId,
+            UserId: activeUserId
+        };
+
+        $.ajax({
+            url: '/api/Song/ToggleLike',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(toggleLikeData),
+            success: function (response) {
+                window.location.href = '/Home/Profile?userId=' + activeUserId;
+            },
+            error: function (xhr, status, error) {
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    alert(xhr.responseJSON.message);
+                } else {
+                    alert("An error occurred. Please try again.");
+                }
+            }
+        });
+    }
+
+
+    function handleAddFriendSuccess() {
+        //TODO: instead of reloading, append a card element with the new friend
+        //will have to modify api response to return new friend/user object instead of just a message
+        //for now, reload and it will be added to the viewmodel when we GET
+        window.location.href = '/Home/Profile?userId=' + activeUserId;
+    }
+
+
+    function handleAddSongSuccess() {
+        //TODO same as above
+        window.location.href = '/Home/Profile?userId=' + activeUserId;
+    }
+</script>
+

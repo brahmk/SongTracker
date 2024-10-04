@@ -1,0 +1,18 @@
+﻿@model SongTracker.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container">
+    <h1>SongTracker</h1>
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <div class="form-group">
+            <input asp-for="UserName" class="form-control" placeholder="Enter your username" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    }
+</div>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
