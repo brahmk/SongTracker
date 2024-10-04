@@ -1,16 +1,13 @@
 ## SongTracker 
 
-### Requirements:
+## Requirements:
 - Visual Studio 2022 (or newer)
 - .NET 8 SDK
 - SQL Server (local instance or remote)
 
-### Setup:
+## Setup:
 
-1. Clone the repository:
-   ```
-  git clone https://github.com/brahmk/songtracker.git
-   ```
+1. Clone the repository: git clone https://github.com/brahmk/songtracker.git   
 
 2. Modify `appsettings.json`:
    Update the connection string in `appsettings.json` to point to your SQL Server instance.
