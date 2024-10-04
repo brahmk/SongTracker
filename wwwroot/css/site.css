@@ -28,9 +28,9 @@ body {
     margin: 0 auto;
     padding: 0px;
     display: flex;
-    justify-content: center; /* Horizontally center items */
-    flex-wrap: wrap; /* Allows items to wrap to the next line if necessary */
-    gap: 20px; /* Optional: Adds spacing between the items */
+    justify-content: center; 
+    flex-wrap: wrap;
+    gap: 20px; 
 }
 
 

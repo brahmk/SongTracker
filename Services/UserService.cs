@@ -18,7 +18,7 @@ namespace SongTracker.Services
         public async Task<int> GetOrCreateUserIdByName(string username)
         {
 
-
+            try { 
             var user = await _context.Users
                 .Include(u => u.LikedSongs).FirstOrDefaultAsync(x => x.UserName == username);
             if (user == null) {
@@ -27,33 +27,47 @@ namespace SongTracker.Services
                 await _context.SaveChangesAsync();
             }
             return user.UserId;
+            }
+            catch (Exception ex)
+            {
+                return 0;
+                //log exception
+            }
 
         }
 
         public async Task<(bool success, string message)> AddFriendByUserName(AddFriendModel model)
         {
-            var newFriend = await _context.Users.Include(u=>u.Friends).FirstOrDefaultAsync(u => u.UserName == model.UserNameToAdd);
+            try
+            {
+                var newFriend = await _context.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.UserName == model.UserNameToAdd);
 
-            if (newFriend == null)
-                return (false, "Unable to find anyone by that user name.");
+                if (newFriend == null)
+                    return (false, "Unable to find anyone by that user name.");
 
-            var activeUser = await _context.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.UserId == model.ActiveUserId);
+                var activeUser = await _context.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.UserId == model.ActiveUserId);
 
-            if (activeUser == null)
+                if (activeUser == null)
+                    return (false, "An error occurred.");
+
+
+                if (activeUser.Friends.Contains(newFriend))
+                    return (false, $"You're already friends with {model.UserNameToAdd}!");
+
+                activeUser.Friends.Add(newFriend);
+                newFriend.Friends.Add(activeUser);
+
+                _context.Users.Update(activeUser);
+                _context.Users.Update(newFriend);
+                await _context.SaveChangesAsync();
+
+                return (true, "Friend Added!");
+            }
+            catch (Exception ex)
+            {
                 return (false, "An error occurred.");
-
-
-            if (activeUser.Friends.Contains(newFriend))           
-                 return (false, $"You're already friends with {model.UserNameToAdd}!");
-
-            activeUser.Friends.Add(newFriend);
-            newFriend.Friends.Add(activeUser);
-
-            _context.Users.Update(activeUser);
-            _context.Users.Update(newFriend);
-            await _context.SaveChangesAsync();
-
-            return (true, "Friend Added!");
+                //log exception
+            }
         }
 
 

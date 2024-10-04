@@ -5,7 +5,8 @@ using SongTracker.Models;
 
 namespace SongTracker.Services
 {
-    public class SongService {
+    public class SongService
+    { //TODO create interface for this class for testing 
 
         private readonly SongTrackerDbContext _context;
         public  SongService(SongTrackerDbContext context)
@@ -108,9 +109,6 @@ namespace SongTracker.Services
             {
                 var songId = model.SongId;
 
-
-                
-
                 var song = await _context.Songs.FirstOrDefaultAsync(s => s.SongId == songId);
 
                 if (song == null)
@@ -128,7 +126,6 @@ namespace SongTracker.Services
 
                 return (true, "Song updated.");
 
-
             }
             catch (Exception ex)
             {
@@ -140,8 +137,7 @@ namespace SongTracker.Services
         public async Task<List<string>> GetRecentActivity(int userId)
         {
             try
-            {
-               
+            {              
                     var result = await _context.Users
                     .Where(u => u.UserId != userId)
                       .Include(u => u.LikedSongs)

@@ -33,7 +33,13 @@ namespace SongTracker.Controllers
             if (!ModelState.IsValid)       
                 return View(model);
             
-            var userId = await _userService.GetOrCreateUserIdByName(model.UserName);  
+            var userId = await _userService.GetOrCreateUserIdByName(model.UserName);
+
+            if (userId == 0)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred.");
+                return View(model);
+            }
 
             return RedirectToAction("Profile", "Home", new { userId }); 
         }
