@@ -29,7 +29,7 @@ namespace SongTracker.Controllers
             if (addFriend.success)
                 return Ok(new { addFriend.message });
 
-            return Unauthorized(new { addFriend.message });
+            return BadRequest(new { addFriend.message });
         }
 
     }

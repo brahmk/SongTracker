@@ -10,7 +10,9 @@ namespace SongTracker.Models
         public required string ArtistLookup { get; set; }
         public required string TitleLookup { get; set; }    
         public virtual List<User> LikedBy { get; set; } = new List<User>();
-        
+        public DateTime? DateAdded { get; set; }
+        public DateTime? DateModified { get; set; } 
+
         public string? LinkUrl { get; set; }
         public string? LinkIcon
         {

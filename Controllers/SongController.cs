@@ -11,13 +11,11 @@ namespace SongTracker.Controllers
     [Route("api/[controller]")]
     public class SongController : ControllerBase
     {
-        private readonly SongTrackerDbContext _context;
         private readonly UserService _userService;
         private readonly SongService _songService;
 
-        public SongController(SongTrackerDbContext context, UserService userService, SongService songService)
+        public SongController( UserService userService, SongService songService)
         {
-            _context = context;
             _userService = userService;
             _songService = songService;
         }
@@ -25,28 +23,59 @@ namespace SongTracker.Controllers
         [HttpPost("AddSong")]
         public async Task<IActionResult> AddSong([FromBody] AddSongModel model)
         {
+            try
+            {
+                var currentUser = await _userService.GetUserById(model.AddedByUserId);
+                if (currentUser == null)
+                    return Unauthorized();
 
-            var currentUser = await _userService.GetUserById(model.AddedByUserId);
-            if (currentUser == null)
-                return Unauthorized();
+                var addSong = await _songService.AddSongToUserAsync(currentUser, model);
 
-            var addSong = await _songService.AddSongToUserAsync(currentUser, model);
+                if (addSong.success)
+                    return Ok(new { addSong.message });
 
-            if (addSong.success)
-                return Ok(new { addSong.message });
-
-            return Unauthorized(new { addSong.message });
+                return StatusCode(500, new { addSong.message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred." });
+            }
         }
 
         [HttpPost("ToggleLike")]
         public async Task<IActionResult> ToggleLike([FromBody] ToggleLikeModel model) 
         {
-            var toggle = await _songService.ToggleLike(model);
+            try
+            {
+                var toggle = await _songService.ToggleLike(model);
 
-            if (toggle.success)
-                return Ok(new { toggle.message });
+                if (toggle.success)
+                    return Ok(new { toggle.message });
 
-            return Unauthorized(new { toggle.message });
+                return StatusCode(500, new { toggle.message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred." });
+            }
+        }
+
+        [HttpPost("EditSong")]
+        public async Task<IActionResult> EditSong([FromBody] EditSongModel model)
+        {
+            try
+            {
+                var edit = await _songService.EditSong(model);
+
+                if (edit.success)
+                    return Ok(new { edit.message });
+
+                return StatusCode(500, new { edit.message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred." });
+            }
         }
 
     }

@@ -18,15 +18,21 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background: linear-gradient(to bottom, #e0f7fa, #b3e5fc);
 }
+
 
 .container {
     width: 100%;
     margin: 0 auto;
-    padding: 20px;
-    text-align: center;
+    padding: 0px;
+    display: flex;
+    justify-content: center; /* Horizontally center items */
+    flex-wrap: wrap; /* Allows items to wrap to the next line if necessary */
+    gap: 20px; /* Optional: Adds spacing between the items */
 }
+
 
 input[type="text"] {
     width: 100%;
@@ -43,6 +49,8 @@ input[type="text"] {
 
 .card {
     min-width: 450px; 
+    border-radius:20px;
+
 }
 
 button {

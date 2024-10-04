@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SongTracker.Data;
 
@@ -11,9 +12,11 @@ using SongTracker.Data;
 namespace SongTracker.Migrations
 {
     [DbContext(typeof(SongTrackerDbContext))]
-    partial class SongTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241004013541_dateTimeToSong")]
+    partial class dateTimeToSong
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

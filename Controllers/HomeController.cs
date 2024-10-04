@@ -1,3 +1,4 @@
+using Humanizer.Localisation.DateToOrdinalWords;
 using Microsoft.AspNetCore.Mvc;
 using SongTracker.Models;
 using SongTracker.Services;
@@ -39,6 +40,7 @@ namespace SongTracker.Controllers
 
         public  async Task<IActionResult> Profile(int userId)
         {
+            
             var user = await _userService.GetUserById(userId);
             if (user == null)
             {
@@ -50,19 +52,24 @@ namespace SongTracker.Controllers
             {
                 Friends = user.Friends ?? [],
                 ActiveUserId = userId,
-                Songs = user.LikedSongs ?? [],
+                Songs = user.LikedSongs?.OrderBy(song => song.Artist).ToList() ?? [],
                 ProfileName = user.UserName ?? string.Empty
             };
             return View(model);
         }
 
-        //public async Task<IActionResult> Feed()
-        //{
-        //    var feed = _songService.GetRecentActivity();
-        //    return View(model);
-        //}
+        public async Task<IActionResult> Feed(int userId)
+        {
+            //TODO: fix this 
+            return View();
 
-       
+            
+            var feed = await _songService.GetRecentActivity();
+            
+            return View(new FeedViewModel { ActiveUserId = userId, Activity = feed });
+        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

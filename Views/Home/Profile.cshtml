@@ -26,7 +26,10 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <b> @song.Title</b> by @song.Artist
-                                   
+                                    <button type="button" class="btn btn-link p-0 ml-2" data-toggle="modal" data-target="#editSongModal"
+                                            onclick="editSong('@song.SongId', '@song.Title', '@song.Artist', '@song.LinkUrl')" title="Edit Song">
+                                        <i class="fas fa-edit"></i> 
+                                    </button>
                                 </div>
                                 <div>
                                     @if (!string.IsNullOrEmpty(song.LinkUrl))
@@ -184,6 +187,48 @@
   </div>
 </div>
 
+<!--edit song modal-->
+<div class="modal fade" id="editSongModal" tabindex="-1" role="dialog" aria-labelledby="editSongModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSongModalLabel">Edit Song</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editSongForm">
+                    <input type="hidden" id="editSongId" />
+
+                    <div class="form-group">
+                        <label for="editSongTitle">Song Title</label>
+                        <input type="text" class="form-control" id="editSongTitle" placeholder="Enter song title" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editSongArtist">Artist</label>
+                        <input type="text" class="form-control" id="editSongArtist" placeholder="Enter artist name" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editSongLink">Link</label>
+                        <input type="text" class="form-control" id="editSongLink" placeholder="Enter link" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+
+                </form>
+            </div>
+           
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -192,6 +237,7 @@
 
     $(document).ready(function () {
         //add song
+        //TODO: js method for ajax calls with variables for url, data, etc 
         $('#addSongForm').submit(function (event) {
             event.preventDefault();
 
@@ -250,9 +296,43 @@
                 }
             });
         });
+
+
+        $(document).ready(function () {
+            $('#editSongForm').submit(function (event) {
+                event.preventDefault();
+
+                var editSongData = {
+                    SongId: $('#editSongId').val(),
+                    Title: $('#editSongTitle').val(),
+                    Artist: $('#editSongArtist').val(),
+                    LinkUrl: $('#editSongLink').val()
+                };
+
+                $.ajax({
+                    url: '/api/Song/EditSong',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(editSongData),
+                    success: function (response) {
+                        $('#editSongModal').modal('hide'); 
+
+                        handleEditSongSuccess();
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            alert(xhr.responseJSON.message);
+                        } else {
+                            alert("An error occurred. Please try again.");
+                        }
+                    }
+                });
+            });
+        });
+
     });
 
-    // Function to toggle like/unlike
+    //  toggle like/unlike
     function toggleLike(songId) {
         var toggleLikeData = {
             SongId: songId,
@@ -265,7 +345,7 @@
             contentType: 'application/json',
             data: JSON.stringify(toggleLikeData),
             success: function (response) {
-                window.location.href = '/Home/Profile?userId=' + activeUserId;
+                handleEditSongSuccess();
             },
             error: function (xhr, status, error) {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -280,7 +360,7 @@
 
     function handleAddFriendSuccess() {
         //TODO: instead of reloading, append a card element with the new friend
-        //will have to modify api response to return new friend/user object instead of just a message
+        //will have to modify api response to return updated friend/user object instead of just a message
         //for now, reload and it will be added to the viewmodel when we GET
         window.location.href = '/Home/Profile?userId=' + activeUserId;
     }
@@ -289,6 +369,18 @@
     function handleAddSongSuccess() {
         //TODO same as above
         window.location.href = '/Home/Profile?userId=' + activeUserId;
+    }
+
+    function handleEditSongSuccess() {
+        //TODO same as above
+        window.location.href = '/Home/Profile?userId=' + activeUserId;
+    }
+
+    function editSong(songId, title, artist, link) {
+        document.getElementById("editSongId").value = songId;
+        document.getElementById("editSongTitle").value = title;
+        document.getElementById("editSongArtist").value = artist;
+        document.getElementById("editSongLink").value = link;
     }
 </script>
 
