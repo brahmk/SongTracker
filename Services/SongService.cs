@@ -40,7 +40,7 @@ namespace SongTracker.Services
                     DateAdded = DateTime.Now
                 };
 
-                var songExists = await _context.Songs.FirstOrDefaultAsync(x => x.ArtistLookup == mySong.ArtistLookup && x.TitleLookup == x.TitleLookup);
+                var songExists = await _context.Songs.FirstOrDefaultAsync(x => x.ArtistLookup == mySong.ArtistLookup && x.TitleLookup == mySong.TitleLookup);
                 if (songExists != null) {
                     user.LikedSongs.Add(songExists);
                     _context.Users.Update(user);
@@ -159,7 +159,7 @@ namespace SongTracker.Services
                 {
                     foreach (var likedSong in user.LikedSongs)
                     {
-                        activity.Add($"{user.UserName} added '{likedSong.Title}' by {likedSong.Artist} on {likedSong.DateAdded.ToString()}");
+                        activity.Add($"{user.UserName} added '{likedSong.Title}' by {likedSong.Artist} on {likedSong.DateAdded}");
                     }
                 }
               
