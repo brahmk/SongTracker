@@ -60,11 +60,7 @@ namespace SongTracker.Controllers
 
         public async Task<IActionResult> Feed(int userId)
         {
-            //TODO: fix this 
-            return View();
-
-            
-            var feed = await _songService.GetRecentActivity();
+            var feed = await _songService.GetRecentActivity(userId);
             
             return View(new FeedViewModel { ActiveUserId = userId, Activity = feed });
         }

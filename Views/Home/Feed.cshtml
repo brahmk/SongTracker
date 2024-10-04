@@ -1,10 +1,14 @@
-﻿
+﻿@model SongTracker.ViewModels.FeedViewModel
+
 @{
     ViewData["Title"] = "Feed";
+    ViewBag.UserId = Model.ActiveUserId;
 
 }
 
 
 <h3>Recent Activity</h3>
-
-    <p>No recent activity.</p>
+@foreach (var item in Model.Activity)
+{
+    <p>@item</p>
+}

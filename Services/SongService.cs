@@ -137,24 +137,37 @@ namespace SongTracker.Services
             }
         }
 
-        public async Task<List<string>> GetRecentActivity()
+        public async Task<List<string>> GetRecentActivity(int userId)
         {
             try
             {
-                var activity = new List<string>();
-                var query = await (from users in _context.Users
-                                   join songs in _context.Songs on users.Friends equals songs.LikedBy
-                                   orderby songs.DateAdded descending
-                                   select new { users.UserName, songs.Title, songs.Artist }).Take(5).ToListAsync();
-                //this throws exception, cant  query by navigation property in ef
-                //will  need to create instance of junction table in my dbcontext and join off of that 
-                foreach (var item in query)
+               
+                    var result = await _context.Users
+                    .Where(u => u.UserId != userId)
+                      .Include(u => u.LikedSongs)
+                      .Select(u => new
+                      {
+                          u.UserName,
+                          LikedSongs = u.LikedSongs.Select(ls => new
+                          {
+                              ls.Title,
+                              ls.Artist, 
+                              ls.DateAdded
+                          })
+                      }).Take(10)
+                      .ToListAsync();
+
+                List<string> activity = new List<string>();
+
+                foreach (var user in result)
                 {
-                    activity.Add($"{item.UserName} liked {item.Title} by {item.Artist}");
+                    foreach (var likedSong in user.LikedSongs)
+                    {
+                        activity.Add($"{user.UserName} added '{likedSong.Title}' by {likedSong.Artist} on {likedSong.DateAdded.ToString()}");
+                    }
                 }
-
-
-                if (query.Count == 0)
+              
+                if (result.Count == 0)
                 {
                     activity.Add("No recent activity found.");
                 }
